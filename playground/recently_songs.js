@@ -77,6 +77,6 @@ async function run() {
   return database;
 }
 
-const database = run();
-
-console.log(database);
+run().then((database) => {
+  console.log(database);
+});

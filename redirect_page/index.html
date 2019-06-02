@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function getParams() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("code")) {
+          var codeText = document.getElementById("code")
+          codeText.value = urlParams.get("code");
+          codeText.select()
+          document.execCommand("copy");
+          alert("Code copied to clipboard");
+          console.log(urlParams.get("code"));
+        }
+      }
+
+    </script>
+  </head>
+  <body>
+    <button onclick="getParams()">Get Code</button>
+    <p>Code: <textarea id="code"></textarea></p>
+  </body>
+</html>

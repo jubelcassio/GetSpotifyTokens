@@ -1,3 +1,5 @@
-setup.json
 node_modules/
+
 package-lock.json
+playground/database.json
+setup.json

@@ -67,39 +67,55 @@ async function fetchData() {
     // Raw object from the response
     const track_obj = recent_tracks.body.items[i];
     const analysis_obj = music_analysis.body.audio_features[i];
-
-    // Genres for this track
-    const album_genres = await fetchAlbumGenre(track_obj.track.album.id);
-    const artist_genres = await fetchArtistGenre(track_obj.track.album.artists[0].id);
+    const artist = await spotifyApi.getArtist(track_obj.track.album.artists[0].id);
+    const album = await spotifyApi.getAlbum(track_obj.track.album.id);
 
     // Each track is a row in the database
     const row = {
-      // Base data
-      "name": track_obj.track.name,
-      "popularity": track_obj.track.popularity,
-      "time_played": track_obj.played_at,
-      "duration_ms": track_obj.track.duration_ms,
+      // Time the track was played
+      "play_log": {
+        "id": track_obj.track.id,
+        "time_played": track_obj.played_at,
+      },
 
-      // Audio analysis on the track
-      "acousticness": analysis_obj.acousticness,
-      "danceability": analysis_obj.danceability,
-      "energy": analysis_obj.energy,
-      "instrumentalness": analysis_obj.instrumentalness,
-      "key": analysis_obj.key,
-      "liveness": analysis_obj.liveness,
-      "loudness": analysis_obj.loudness,
-      "mode": analysis_obj.mode,
-      "speechiness": analysis_obj.speechiness,
-      "tempo": analysis_obj.tempo,
-      "time_signature": analysis_obj.time_signature,
-      "valence": analysis_obj.valence,
+      // Track data
+      "track": {
+        "name": track_obj.track.name,
+        "id": track_obj.track.id,
+        "popularity": track_obj.track.popularity,
+        "duration_ms": track_obj.track.duration_ms,
+  
+        // Audio analysis on the track
+        "acousticness": analysis_obj.acousticness,
+        "danceability": analysis_obj.danceability,
+        "energy": analysis_obj.energy,
+        "instrumentalness": analysis_obj.instrumentalness,
+        "key": analysis_obj.key,
+        "liveness": analysis_obj.liveness,
+        "loudness": analysis_obj.loudness,
+        "mode": analysis_obj.mode,
+        "speechiness": analysis_obj.speechiness,
+        "tempo": analysis_obj.tempo,
+        "time_signature": analysis_obj.time_signature,
+        "valence": analysis_obj.valence,
+      },
 
-      // Album and Artist data
-      "album": track_obj.track.album.name,
-      "album_genre": album_genres,
-      "album_release": track_obj.track.album.release_date,
-      "artist": track_obj.track.album.artists[0].name,
-      "artist_genre": artist_genres,
+      // Album data
+      "album": {
+        "name": album.body.name,
+        "id": album.body.id,
+        "genre": album.body.genres,
+        "popularity": album.body.popularity,
+        "release": album.body.release_date,
+      },
+
+      // Artist data
+      "artist": {
+        "name": artist.body.name,
+        "id": artist.body.id,
+        "genre": artist.body.genres,
+        "popularity": artist.body.popularity,
+      }
     }
 
     database.push(row);
@@ -120,5 +136,6 @@ async function run() {
 
 
 run().then((database) => {
-  console.log(database);
+  fs.writeFileSync("playground/database.json", JSON.stringify(database))
+  console.log("Data saved into database.json")
 });
